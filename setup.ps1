@@ -65,6 +65,19 @@ if (-not (Test-Path $settingsDst)) {
 }
 Write-Host "[OK] Config files copied" -ForegroundColor Green
 
+# 3-1. MEMORY.md → 머신별 올바른 경로에 배치
+# 경로 인코딩: C:\Users\john → C--Users-john (콜론→대시, 백슬래시→대시)
+$homeEncoded = $env:USERPROFILE.Replace(":", "-").Replace("\", "-")
+$memoryDir = Join-Path $ClaudeDest "projects\$homeEncoded\memory"
+New-Item -ItemType Directory -Force -Path $memoryDir | Out-Null
+$memorySrc = Join-Path $ScriptDir "memory\MEMORY.md"
+$memoryDst = Join-Path $memoryDir "MEMORY.md"
+if (Test-Path $memorySrc) {
+    Copy-Item $memorySrc $memoryDst -Force
+    Write-Host "  → memory/MEMORY.md → $memoryDir" -ForegroundColor Gray
+}
+Write-Host "[OK] MEMORY.md 배치 완료" -ForegroundColor Green
+
 # 4. Generate ~/.mcp.json
 $mcpTemplate = Get-Content (Join-Path $ScriptDir ".mcp.json.template") -Raw
 # Convert Windows backslashes to forward slashes for JSON safety

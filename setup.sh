@@ -60,6 +60,17 @@ else
 fi
 echo "[OK] Config files copied"
 
+# 3-1. MEMORY.md → 머신별 올바른 경로에 배치
+# 경로 인코딩: /Users/john → -Users-john (슬래시→대시)
+HOME_ENCODED="${HOME//\//-}"
+MEMORY_DIR="$HOME/.claude/projects/$HOME_ENCODED/memory"
+mkdir -p "$MEMORY_DIR"
+if [ -f "$SCRIPT_DIR/memory/MEMORY.md" ]; then
+    cp "$SCRIPT_DIR/memory/MEMORY.md" "$MEMORY_DIR/MEMORY.md"
+    echo "  → memory/MEMORY.md → $MEMORY_DIR"
+fi
+echo "[OK] MEMORY.md 배치 완료"
+
 # 4. Generate ~/.mcp.json
 MCP_TEMPLATE="$SCRIPT_DIR/.mcp.json.template"
 MCP_DEST="$HOME/.mcp.json"
