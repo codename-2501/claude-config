@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ClaudeTalkToFigma": {
+      "command": "bun",
+      "args": ["run", "{{FIGMA_MCP_DIR}}/dist/talk_to_figma_mcp/server.js"],
+      "env": {
+        "WS_URL": "ws://localhost:3055"
+      }
+    }
+  }
+}

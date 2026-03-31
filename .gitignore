@@ -1,0 +1,27 @@
+# 민감 정보 / 세션 데이터 제외
+.credentials.json
+settings.local.json
+*.backup.*
+
+# 세션/캐시 데이터
+projects/
+tasks/
+todos/
+history.jsonl
+backups/
+cache/
+telemetry/
+debug/
+shell-snapshots/
+paste-cache/
+work-log/
+file-history/
+homunculus/
+session-env/
+mcp-usage.log
+mcp-needs-auth-cache.json
+cc-chips/
+
+# OS
+.DS_Store
+Thumbs.db
