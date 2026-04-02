@@ -52,9 +52,10 @@ fd(설계 명세) → 사용자 승인
 - 리뷰어에게 좌표 데이터 넘길 때 반드시 실제 height 포함. height 없는 데이터로 리뷰 돌리지 말 것
 - **Description 내용은 기능 위주만 작성** — 색상 정보, 글씨 두께 등 시각적 스타일 정보 넣지 않음
 - 텍스트 정렬 오차 2px 이내 준수
-- 빨간 뱃지는 객체 왼쪽 1/3 겹침 배치: `badge.x = element.x - Math.round(44 * 2/3)` = element.x - 29
+- **뱃지 배치 (확정)**: `badge.x = element_page_x - 33` (1/4 겹침), `badge.y = element_page_y + floor((element_h - 29) / 2)` (수직 중앙), 반드시 페이지 레벨 배치
 - 텍스트/이모지 아이콘 사용 금지
 - **화면 제작 시 행간·객체 간격 반드시 확인**: 본문 lineHeight 최소 1.4x (13px→18-19px, 14px→20-21px, 15px→22px), 객체 간 최소 8-10px 간격 유지, 겹침 절대 금지
+- **화면/Description 좌표 (확정)**: screen 간격 1060px, `desc.x = screen.x + 433` (393+40px gap). 다중: screen_n.x = n×1060, desc_n.x = n×1060+433
 
 ## Screen Index 관리
 - 화면 생성 후 해당 페이지의 `Common/Screen Index` 컴포넌트에 행 추가 필수
@@ -91,17 +92,41 @@ storage.frameId = frame.id; // ID 캐시
 - timeout: **120초** (수정됨, 기존 30초)
 - 결과는 plain object만 반환 (Figma 노드 직접 반환 불가)
 
-### F 내장 UI 컴포넌트 헬퍼 (code.js 추가됨)
+### F.description 시그니처 (CRITICAL)
+```js
+// 올바른 호출 방법
+await F.description(screenName, meta, sections, opts);
+// meta: {id, path, desc, devType} 객체
+// sections: [{title, descs:[]}] 배열
+// opts: {x, y} 위치
+// 예:
+await F.description('MC2',
+  {id:'MC2', path:'Ch00>MC', desc:'화면설명', devType:'APP'},
+  [{title:'섹션명', descs:['내용']}],
+  {x: mc2.descX, y: 0});
+```
+- **한국어 텍스트는 Noto Sans Bold 사용** (Roboto는 한국어 미지원 → characters 에러)
+- async function 선언 대신 `var fn = async function(...)` 패턴 사용
+
+### F 내장 UI 컴포넌트 헬퍼 (code.js)
 | 함수 | 용도 | 주요 옵션 |
 |------|------|----------|
+| `F.screen(name, opts)` | 화면 프레임 (393×852) | opts.x, opts.y, opts.width, opts.height |
 | `F.statusBar(parentId, opts)` | Status Bar (393×44) | opts.time |
+| `F.appHeader(title, parentId, opts)` | 앱 헤더 (393×56) | opts.hasBack, opts.hasMenu, opts.hasBell, opts.bgColor |
 | `F.inputField(label, placeholder, parentId, opts)` | 입력 필드 (361×56) | opts.x, opts.y, opts.error |
 | `F.primaryButton(label, parentId, opts)` | Primary 버튼 (361×52) | opts.x, opts.y, opts.disabled |
 | `F.outlineButton(label, parentId, opts)` | Outline 버튼 (361×52) | opts.bgColor, opts.textColor |
-| `F.listItem(text, parentId, opts)` | 리스트 아이템 (393×56) | opts.bgColor |
-| `F.sectionHeader(text, parentId, opts)` | 섹션 헤더 (393×32) | - |
-| `F.tabBar(tabs, parentId, opts)` | 탭바 (393×56) | opts.y, opts.activeIndex |
+| `F.inlineButtons(labels, parentId, opts)` | 인라인 버튼 N개 | opts.activeIndex, opts.btnColor |
+| `F.listItem(text, parentId, opts)` | 리스트 아이템 (393×56/68) | opts.subText, opts.value, opts.rightText |
+| `F.sectionHeader(text, parentId, opts)` | 섹션 헤더 (393×44) | opts.rightText, opts.bgColor |
+| `F.select(label, value, parentId, opts)` | 드롭다운 선택 필드 | opts.x, opts.y |
+| `F.summaryCard(rows, parentId, opts)` | 요약 카드 | rows:[{label,value,bold,color}] |
+| `F.passwordDots(total, filled, parentId, opts)` | 비밀번호 점 | opts.x, opts.y |
+| `F.numpad(parentId, opts)` | 숫자 키패드 4×3 | opts.keys |
+| `F.tabBar(tabs, parentId, opts)` | 탭바 (393×56) | opts.y, opts.activeIndex, opts.x |
 | `F.badge(number, parentId, opts)` | 뱃지 (44×29, #BF0F0F) | opts.x, opts.y |
+| `F.ellipse(name, w, h, opts)` | 타원/원 | opts.fillColor, opts.strokeColor, opts.parentId |
 
 **badge 컴포넌트 key**: `d178a2485ff4307b1116ebee11695d75c0d3ccef`
 - 플러그인 재시작 필요 (code.js 변경 시)
